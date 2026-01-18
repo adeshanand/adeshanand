@@ -1,0 +1,5 @@
+export { PortfolioHero } from './Hero'
+export { Skills } from './Skills'
+export { Experience } from './Experience'
+export { Projects } from './Projects'
+export { Contact } from './Contact'
