@@ -13,8 +13,6 @@ export const authenticatedOrPublishedWithAuth: Access = ({ req: { user } }) => {
         _status: {
           equals: 'published',
         },
-      },
-      {
         or: [
           {
             requiresAuth: {

@@ -3,13 +3,12 @@ import type { Config } from '../payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { unstable_cache } from 'next/cache.js'
-import { cookies } from 'next/headers'
+import { getLocale } from './getLocale'
 
 type Collection = keyof Config['collections']
 
 async function getDocument(collection: Collection, slug: string, depth = 0) {
-  const cookieStore = await cookies()
-  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en'
+  const locale = await getLocale()
 
   const payload = await getPayload({ config: configPromise })
 
@@ -32,8 +31,7 @@ async function getDocument(collection: Collection, slug: string, depth = 0) {
  */
 export const getCachedDocument = (collection: Collection, slug: string) => {
   return async () => {
-    const cookieStore = await cookies()
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en'
+    const locale = await getLocale()
 
     const getByLocale = unstable_cache(
       async () => getDocument(collection, slug),

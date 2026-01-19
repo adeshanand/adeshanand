@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated.ts'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished.ts'
 import { authenticatedOrPublishedWithAuth } from '../../access/authenticatedOrPublishedWithAuth.ts'
 import { Archive } from '../../blocks/ArchiveBlock/config.ts'
 import { CallToAction } from '../../blocks/CallToAction/config.ts'
@@ -40,18 +39,16 @@ export const Pages: CollectionConfig<'pages'> = {
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     livePreview: {
-      url: ({ data, req }) =>
+      url: ({ data }) =>
         generatePreviewPath({
           slug: data?.slug,
           collection: 'pages',
-          req,
         }),
     },
-    preview: (data, { req }) =>
+    preview: (data) =>
       generatePreviewPath({
         slug: data?.slug as string,
         collection: 'pages',
-        req,
       }),
     useAsTitle: 'title',
   },

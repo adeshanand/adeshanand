@@ -37,18 +37,28 @@ export const RenderBlocks: React.FC<{
             if (Block) {
               // Check if it's a content block and should have gradient background
               const isContentBlock = blockType === 'content'
+              const isMediaBlock = blockType === 'mediaBlock'
               const shouldHaveGradient = !disableGradient && isContentBlock && index === 0 && !disableTopPadding
+
+              // Prepare props based on block type
+              const blockProps: any = { ...(block as Page['layout'][0]) }
+              
+              // Only add backgroundColor for content blocks
+              if (isContentBlock) {
+                blockProps.backgroundColor = shouldHaveGradient ? 'gradient' : 'default'
+              }
+              
+              // Only add disableInnerContainer for media blocks
+              if (isMediaBlock) {
+                blockProps.disableInnerContainer = true
+              }
 
               return (
                 <div 
                   className={shouldHaveGradient ? '' : 'my-16'} 
-                  key={(block as any).id || index}
+                  key={(block as Page['layout'][0]).id || index}
                 >
-                  <Block 
-                    {...(block as any)} 
-                    disableInnerContainer
-                    backgroundColor={shouldHaveGradient ? 'gradient' : 'default'}
-                  />
+                  <Block {...blockProps} />
                 </div>
               )
             }

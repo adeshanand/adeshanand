@@ -2,7 +2,7 @@ import React from 'react'
 
 interface Highlight {
   value: string
-  id: string
+  id?: string | null
 }
 
 interface Experience {

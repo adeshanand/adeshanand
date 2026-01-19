@@ -3,8 +3,14 @@ import Image from 'next/image'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import type { Media } from '@/payload-types'
-import { HeroContactLink } from './HeroContactLink'
 import { getLocale } from '@/utilities/locale/server'
+
+interface HeroButton {
+  label: string
+  link: string
+  style: 'primary' | 'secondary'
+  id?: string | null
+}
 
 export async function PortfolioHero() {
   const payload = await getPayload({ config: configPromise })
@@ -95,8 +101,7 @@ export async function PortfolioHero() {
             
             {heroButtons.length > 0 && (
               <div className="mt-10 flex items-center justify-center lg:justify-start gap-x-6">
-                {heroButtons.map((button: any, index: number) => {
-                  const isPrimary = button.style === 'primary'
+                {heroButtons.map((button: HeroButton, index: number) => {
                   const isSecondary = button.style === 'secondary'
                   
                   // Render secondary as text link

@@ -7,7 +7,6 @@ const collectionPrefixMap: Partial<Record<string, string>> = {
 type Props = {
   collection: keyof typeof collectionPrefixMap
   slug: string
-  req?: any
 }
 
 export const generatePreviewPath = ({ collection, slug }: Props) => {

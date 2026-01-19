@@ -64,7 +64,7 @@ export async function Contact({ transparent = false, hideHeader = false }: { tra
           ) : (
             <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/30 p-6 backdrop-blur-sm">
               <p className="text-yellow-400">
-                Contact form is not available. Please ensure the "Contact Form" exists in your Forms collection.
+                Contact form is not available. Please ensure the &quot;Contact Form&quot; exists in your Forms collection.
               </p>
             </div>
           )}

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 
 export function HeroContactLink() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [_isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     // Check if user is authenticated
@@ -14,7 +14,7 @@ export function HeroContactLink() {
           credentials: 'include',
         })
         setIsAuthenticated(response.ok)
-      } catch (error) {
+      } catch (_error) {
         setIsAuthenticated(false)
       } finally {
         setIsLoading(false)

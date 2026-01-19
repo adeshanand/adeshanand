@@ -3,13 +3,12 @@ import type { Config } from '../payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { unstable_cache } from 'next/cache.js'
-import { cookies } from 'next/headers'
+import { getLocale } from './getLocale'
 
 type Global = keyof Config['globals']
 
 async function getGlobal(slug: Global, depth = 0) {
-  const cookieStore = await cookies()
-  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en'
+  const locale = await getLocale()
 
   const payload = await getPayload({ config: configPromise })
 
@@ -27,8 +26,7 @@ async function getGlobal(slug: Global, depth = 0) {
  */
 export const getCachedGlobal = (slug: Global, depth = 0) => {
   return async () => {
-    const cookieStore = await cookies()
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en'
+    const locale = await getLocale()
 
     const getByLocale = unstable_cache(async () => getGlobal(slug, depth), [slug, locale], {
       tags: [`global_${slug}_${locale}`],

@@ -2,20 +2,20 @@ import React from 'react'
 
 interface Tech {
   value: string
-  id: string
+  id?: string | null
 }
 
 interface Achievement {
   value: string
-  id: string
+  id?: string | null
 }
 
 interface Project {
   id: string
   title: string
   role?: string | null
-  techStack?: Tech[]
-  achievements?: Achievement[]
+  techStack?: Tech[] | null
+  achievements?: Achievement[] | null
   link?: string | null
 }
 

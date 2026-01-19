@@ -97,7 +97,7 @@ export default async function Page({ params: paramsPromise }: Args) {
         // No user, redirect to login
         redirect(`/admin/login?redirect=${encodeURIComponent(url)}`)
       }
-    } catch (error) {
+    } catch (_error) {
       // Error checking auth, redirect to login
       redirect(`/admin/login?redirect=${encodeURIComponent(url)}`)
     }
