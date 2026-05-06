@@ -1,5 +1,21 @@
 # 💫 About Me: https://adeshanand.netlify.app/
-🔭 **I’m currently working on**<br>Building composable, multisite e-commerce storefronts using Next.js, Builder.io, Alokai, and SFCC with a focus on high performance, Core Web Vitals, and scalable integrations <br><br>👯 **I’m looking to collaborate on**<br>Headless commerce platforms, Next.js and React Server Components projects, BFF architectures, and large-scale web performance optimization initiatives <br><br>🤝 **I’m looking for help with**<br>Exploring advanced distributed system patterns such as CQRS, event sourcing, and resilience engineering in high-traffic commerce systems <br><br>🌱 **I’m currently learning**<br>Edge runtimes, modern MACH/composable architecture practices, and deeper AWS architecture strategies for high-throughput applications <br><br>💬 **Ask me about**<br>Next.js, headless and composable commerce, BFF design, GraphQL/REST API orchestration, and scalable AWS-backed full-stack architectures <br><br>⚡ **Fun fact**<br>I’ve helped build storefront accelerators that enable brands to launch new e-commerce sites significantly faster by reusing modular components and architectures <br>
+🔭 I’m currently working on
+Designing and building AI-enhanced full-stack systems using modern JavaScript (ES6+), microservices architecture, and Large Language Models (LLMs), with a focus on agentic workflows, RAG pipelines, and intelligent API integrations for high-performance applications
+
+👯 I’m looking to collaborate on
+AI-driven platforms, agent-based systems, LLM integrations, and scalable microservices architectures that combine traditional backend engineering with modern AI capabilities
+
+🤝 I’m looking for help with
+Advancing distributed AI system design, optimizing RAG architectures at scale, and implementing robust, production-grade LLM orchestration patterns
+
+🌱 I’m currently learning
+Deeper concepts in agentic AI systems, multimodal LLM capabilities, local-first AI infrastructure, and performance optimization for large-scale AI pipelines
+
+💬 Ask me about
+LLMs, RAG pipelines, agentic workflows, microservices architecture, full-stack JavaScript systems, and building scalable AI-powered applications
+
+⚡ Fun fact
+I’ve built AI systems that go beyond simple chat—integrating memory, retrieval, and multi-source reasoning to create more context-aware and intelligent applications <br>
 
 
 ## 🌐 Socials:
