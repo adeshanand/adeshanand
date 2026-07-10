@@ -1,1 +1,0 @@
-export { CallToActionBlock } from './Component'

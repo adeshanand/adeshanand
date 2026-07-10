@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Disallow: /Adesh-Anand-Resume.pdf

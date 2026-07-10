@@ -1,20 +1,5 @@
-build
-dist / media
 node_modules
+dist
 .DS_Store
-.next
-.vercel
-
-# Payload default media upload directory
-public/media/
-
-public/robots.txt
-public/sitemap*.xml
-
-
-# Playwright
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+*.local
+npm-debug.log*

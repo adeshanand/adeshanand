@@ -1,0 +1,238 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens — the single place to rebrand or retheme the site.
+ * Raw palette lives on :root and flips with the theme; Tailwind utilities
+ * consume it through the inline @theme mapping below, so every existing
+ * class (bg-paper, text-ink, border-ink/8 …) adapts automatically.
+ *
+ * Theme resolution order:
+ *   1. data-theme="light|dark" on <html> (explicit user choice, set by
+ *      public/theme-init.js before first paint and by the nav toggle)
+ *   2. otherwise the OS preference via prefers-color-scheme
+ */
+:root {
+  color-scheme: light;
+  --c-paper: #ffffff;
+  --c-cloud: #f6f8fb;
+  --c-card: #ffffff;
+  --c-ink: #0b1220;
+  --c-muted: #475569;
+  --c-accent: #4f46e5;
+  --c-accent-deep: #4338ca;
+  --c-accent-soft: #eef2ff;
+  --c-accent-strong: #4f46e5;
+  --c-accent-strong-hover: #4338ca;
+
+  --grid-line: rgba(11, 18, 32, 0.045);
+  --hero-wash: rgba(79, 70, 229, 0.07);
+  --aurora-1: rgba(79, 70, 229, 0.14);
+  --aurora-2: rgba(124, 58, 237, 0.1);
+  --aurora-3: rgba(14, 165, 233, 0.08);
+  --spot-color: rgba(79, 70, 229, 0.07);
+  --shadow-card: 0 12px 32px rgba(11, 18, 32, 0.08);
+  --btn-glow: rgba(79, 70, 229, 0.28);
+  --grad-accent-from: #4f46e5;
+  --grad-accent-to: #7c3aed;
+}
+
+/* Dark palette — keep both blocks below identical */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --c-paper: #070b14;
+    --c-cloud: #0d1424;
+    --c-card: #101a2e;
+    --c-ink: #e8ecf4;
+    --c-muted: #9aa8bd;
+    --c-accent: #8b95f9;
+    --c-accent-deep: #a5b4fc;
+    --c-accent-soft: rgba(129, 140, 248, 0.13);
+    --c-accent-strong: #4f46e5;
+    --c-accent-strong-hover: #5a5ceb;
+
+    --grid-line: rgba(232, 236, 244, 0.05);
+    --hero-wash: rgba(99, 102, 241, 0.14);
+    --aurora-1: rgba(99, 102, 241, 0.22);
+    --aurora-2: rgba(139, 92, 246, 0.16);
+    --aurora-3: rgba(34, 211, 238, 0.1);
+    --spot-color: rgba(129, 140, 248, 0.09);
+    --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.55);
+    --btn-glow: rgba(99, 102, 241, 0.4);
+    --grad-accent-from: #818cf8;
+    --grad-accent-to: #c4b5fd;
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-paper: #070b14;
+  --c-cloud: #0d1424;
+  --c-card: #101a2e;
+  --c-ink: #e8ecf4;
+  --c-muted: #9aa8bd;
+  --c-accent: #8b95f9;
+  --c-accent-deep: #a5b4fc;
+  --c-accent-soft: rgba(129, 140, 248, 0.13);
+  --c-accent-strong: #4f46e5;
+  --c-accent-strong-hover: #5a5ceb;
+
+  --grid-line: rgba(232, 236, 244, 0.05);
+  --hero-wash: rgba(99, 102, 241, 0.14);
+  --aurora-1: rgba(99, 102, 241, 0.22);
+  --aurora-2: rgba(139, 92, 246, 0.16);
+  --aurora-3: rgba(34, 211, 238, 0.1);
+  --spot-color: rgba(129, 140, 248, 0.09);
+  --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --btn-glow: rgba(99, 102, 241, 0.4);
+  --grad-accent-from: #818cf8;
+  --grad-accent-to: #c4b5fd;
+}
+
+/* Utilities resolve to var() at the point of use, so opacity modifiers
+ * (border-ink/8, bg-paper/80 …) theme correctly via color-mix. */
+@theme inline {
+  --color-paper: var(--c-paper);
+  --color-cloud: var(--c-cloud);
+  --color-card: var(--c-card);
+  --color-ink: var(--c-ink);
+  --color-muted: var(--c-muted);
+  --color-accent: var(--c-accent);
+  --color-accent-deep: var(--c-accent-deep);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-accent-strong: var(--c-accent-strong);
+  --color-accent-strong-hover: var(--c-accent-strong-hover);
+}
+
+@theme {
+  --font-display: 'Sora Variable', 'Inter Variable', system-ui, sans-serif;
+  --font-body: 'Inter Variable', system-ui, sans-serif;
+}
+
+html {
+  scroll-padding-top: 5.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  @apply bg-paper font-body text-ink antialiased;
+  text-rendering: optimizeLegibility;
+  /* Graceful theme swap in browsers without the View Transitions API */
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+
+/* While a view transition runs, the "new" view is a live capture — the body
+ * transition would cross-fade inside it and blur the circular reveal edge */
+html.vt-active body {
+  transition: none;
+}
+
+::selection {
+  background-color: var(--c-accent);
+  color: var(--c-paper);
+}
+
+/* ---------- Theme switch: circular reveal (View Transitions API) ---------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 0%));
+  animation: theme-reveal 0.55s ease-in-out forwards;
+}
+@keyframes theme-reveal {
+  to {
+    clip-path: circle(160% at var(--vt-x, 50%) var(--vt-y, 0%));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) {
+    clip-path: none;
+    animation: none;
+  }
+}
+
+/* ---------- Hero aurora: slow-drifting gradient glows ----------
+ * Softness comes from the gradient falloff itself — no filter: blur(),
+ * which would rasterize three oversized layers for no visible gain. */
+.aurora {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.aurora-a {
+  width: 44rem;
+  height: 44rem;
+  left: -12%;
+  top: -26%;
+  background: radial-gradient(closest-side, var(--aurora-1), transparent 72%);
+  animation: aurora-a 30s ease-in-out infinite alternate;
+}
+.aurora-b {
+  width: 36rem;
+  height: 36rem;
+  right: -10%;
+  top: -14%;
+  background: radial-gradient(closest-side, var(--aurora-2), transparent 72%);
+  animation: aurora-b 38s ease-in-out infinite alternate;
+}
+.aurora-c {
+  width: 30rem;
+  height: 30rem;
+  left: 34%;
+  top: 0%;
+  background: radial-gradient(closest-side, var(--aurora-3), transparent 72%);
+  animation: aurora-c 34s ease-in-out infinite alternate;
+}
+@keyframes aurora-a {
+  to {
+    transform: translate(4.5rem, 2.5rem) scale(1.12);
+  }
+}
+@keyframes aurora-b {
+  to {
+    transform: translate(-3.5rem, 3rem) scale(1.08);
+  }
+}
+@keyframes aurora-c {
+  to {
+    transform: translate(2.5rem, -2rem) scale(1.15);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora {
+    animation: none;
+  }
+}
+
+/* ---------- Cursor spotlight on cards ---------- */
+.spotlight-card {
+  position: relative;
+}
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    16rem circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    var(--spot-color),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .spotlight-card:hover::before {
+    opacity: 1;
+  }
+}

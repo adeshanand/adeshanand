@@ -1,1 +1,0 @@
-export { ArchiveBlock } from './Component'
