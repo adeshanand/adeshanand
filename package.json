@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Portfolio website for Adesh Anand — Senior Full-Stack Engineer & Composable Commerce Specialist",
+  "description": "Portfolio website for Adesh Anand — Senior Software Engineer & Composable Commerce Specialist",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

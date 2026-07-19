@@ -20,7 +20,8 @@ export default function Skills() {
         <Reveal>
           <SectionHeading
             id="skills-heading"
-            eyebrow="Skills"
+            index="03"
+            eyebrow="Stack"
             title="Full-stack depth, commerce breadth, AI fluency."
             lede="The toolkit behind resilient distributed systems — from BFF layers and event streams to RAG pipelines."
           />
@@ -37,6 +38,9 @@ export default function Skills() {
                       <Icon size={19} aria-hidden />
                     </span>
                     <h3 className="font-display text-lg font-semibold text-ink">{group.title}</h3>
+                    <span aria-hidden className="ml-auto font-mono text-xs tabular-nums text-accent-deep">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
                   </div>
                   <div className="mt-5 flex flex-wrap gap-2">
                     {group.items.map((item) => (

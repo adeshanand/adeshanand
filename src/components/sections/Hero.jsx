@@ -1,13 +1,38 @@
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowUpRight, Download, Linkedin, Mail, MapPin } from 'lucide-react';
+import { ArrowUpRight, BadgeCheck, Download, Linkedin, Mail, MapPin, Phone } from 'lucide-react';
 import Container from '../ui/Container.jsx';
 import Button from '../ui/Button.jsx';
+import Marquee from '../ui/Marquee.jsx';
 import { hero, identity } from '../../data/profile.js';
-import { useRevealedContact } from '../../hooks/useRevealedContact.js';
+import { useHireContact } from '../../hooks/useHireContact.js';
+
+// Separate chunk: WebGL code stays off the critical path
+const HeroField = lazy(() => import('../effects/HeroField.jsx'));
 
 export default function Hero() {
   const reduced = useReducedMotion();
-  const { emailHref } = useRevealedContact();
+  const { hireHref, isPhone, emailHref } = useHireContact();
+  const HireIcon = isPhone ? Phone : Mail;
+  // Defer the field chunk until the browser is idle; the CSS aurora is the
+  // first-paint backdrop and remains the fallback when the field never mounts
+  const [wantField, setWantField] = useState(false);
+  const [fieldLive, setFieldLive] = useState(false);
+  useEffect(() => {
+    if (reduced) {
+      // Honor a mid-session switch too: drop the field, restore the aurora
+      setWantField(false);
+      setFieldLive(false);
+      return undefined;
+    }
+    const arm = () => setWantField(true);
+    if ('requestIdleCallback' in window) {
+      const id = requestIdleCallback(arm, { timeout: 2000 });
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(arm, 350);
+    return () => clearTimeout(id);
+  }, [reduced]);
 
   const stagger = (i) =>
     reduced
@@ -19,20 +44,42 @@ export default function Hero() {
         };
 
   return (
-    <section id="top" aria-label="Introduction" className="relative overflow-hidden pb-20 pt-36 md:pb-28 md:pt-44">
-      {/* Decorative backdrop: drifting aurora glows + fine grid fading from the top + indigo wash */}
+    <section
+      id="top"
+      aria-label="Introduction"
+      className="relative flex min-h-[100svh] flex-col overflow-hidden pt-28 md:pt-32"
+    >
+      {/* Backdrop: grid + wash always; aurora glows hand off to the WebGL
+          field (particles + cursor distortion + AA monogram) once it's live */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="aurora aurora-a" />
-        <div className="aurora aurora-b" />
-        <div className="aurora aurora-c" />
+        <div
+          className={`absolute inset-0 transition-opacity duration-1000 ${
+            fieldLive ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          <div className="aurora aurora-a" />
+          <div className="aurora aurora-b" />
+          <div className="aurora aurora-c" />
+        </div>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--grid-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-line)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_75%_65%_at_50%_0%,black,transparent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(55%_45%_at_50%_0%,var(--hero-wash),transparent)]" />
+        {wantField ? (
+          <Suspense fallback={null}>
+            <HeroField
+              onReady={() => setFieldLive(true)}
+              onLost={() => {
+                setFieldLive(false);
+                setWantField(false);
+              }}
+            />
+          </Suspense>
+        ) : null}
       </div>
 
-      <Container>
+      <Container className="flex flex-1 flex-col justify-center pb-16">
         <motion.p
           {...stagger(0)}
-          className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-card px-4 py-1.5 text-xs font-medium text-muted shadow-sm"
+          className="inline-flex w-fit items-center gap-2 rounded-full border border-ink/10 bg-card/80 px-4 py-1.5 text-xs font-medium text-muted shadow-sm backdrop-blur-sm"
         >
           <MapPin size={13} className="text-accent" aria-hidden />
           {identity.location} · {identity.role}
@@ -40,7 +87,7 @@ export default function Hero() {
 
         <motion.h1
           {...stagger(1)}
-          className="mt-7 max-w-4xl font-display text-[clamp(2.5rem,6.5vw,5rem)] font-semibold leading-[1.05] tracking-tight text-balance text-ink"
+          className="mt-8 max-w-5xl font-display text-[clamp(2.75rem,6.5vw,5.5rem)] font-semibold leading-[1.04] tracking-tight text-balance text-ink"
         >
           {hero.headline[0]}
           <br />
@@ -49,20 +96,52 @@ export default function Hero() {
           </span>
         </motion.h1>
 
-        <motion.p {...stagger(2)} className="mt-6 max-w-2xl text-base leading-relaxed text-muted md:text-lg">
+        <motion.div {...stagger(2)} className="mt-7 flex flex-wrap items-center gap-2.5">
+          {hero.chips.map((chip, i) => (
+            <span
+              key={chip}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold ${
+                i === 0
+                  ? 'bg-accent-soft text-accent ring-1 ring-accent/30'
+                  : 'border border-ink/10 bg-card/80 text-muted backdrop-blur-sm'
+              }`}
+            >
+              {i === 0 ? <BadgeCheck size={13} aria-hidden /> : null}
+              {chip}
+            </span>
+          ))}
+        </motion.div>
+
+        <motion.p {...stagger(3)} className="mt-6 max-w-2xl text-base leading-relaxed text-muted md:text-lg">
           {hero.sub}
         </motion.p>
 
-        <motion.div {...stagger(3)} className="mt-9 flex flex-wrap items-center gap-3">
-          <Button href={emailHref} variant="primary" className="group">
-            <Mail size={16} aria-hidden />
-            Email me
-            <ArrowUpRight
-              size={15}
-              aria-hidden
-              className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            />
-          </Button>
+        <motion.div {...stagger(4)} className="mt-9 flex flex-wrap items-center gap-3">
+          {/* Below lg the nav's Hire Me pill lives inside the hamburger menu,
+              so the hero leads with Hire Me (dials on phones) and the menu
+              offers Email me; at lg+ the roles swap back. */}
+          <div className="lg:hidden">
+            <Button href={hireHref} variant="primary" className="group">
+              <HireIcon size={16} aria-hidden />
+              Hire Me
+              <ArrowUpRight
+                size={15}
+                aria-hidden
+                className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            </Button>
+          </div>
+          <div className="hidden lg:block">
+            <Button href={emailHref} variant="primary" className="group">
+              <Mail size={16} aria-hidden />
+              Email me
+              <ArrowUpRight
+                size={15}
+                aria-hidden
+                className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            </Button>
+          </div>
           <Button href={identity.resumeFile} variant="secondary" download>
             <Download size={16} aria-hidden />
             Download resume
@@ -72,23 +151,12 @@ export default function Hero() {
             LinkedIn
           </Button>
         </motion.div>
-
-        <motion.div {...stagger(4)} className="mt-16 border-t border-ink/8 pt-6 md:mt-20">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
-            Platforms shipped for
-          </p>
-          <ul className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-3">
-            {hero.brands.map((brand) => (
-              <li
-                key={brand}
-                className="font-display text-sm font-semibold uppercase tracking-[0.14em] text-ink/60"
-              >
-                {brand}
-              </li>
-            ))}
-          </ul>
-        </motion.div>
       </Container>
+
+      <motion.div {...stagger(5)} className="border-t border-ink/8 py-5">
+        <p className="sr-only">Platforms shipped for</p>
+        <Marquee items={hero.brands} />
+      </motion.div>
     </section>
   );
 }

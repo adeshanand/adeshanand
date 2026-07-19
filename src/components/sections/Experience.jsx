@@ -1,5 +1,4 @@
-import { useRef } from 'react';
-import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { MapPin } from 'lucide-react';
 import Container from '../ui/Container.jsx';
 import SectionHeading from '../ui/SectionHeading.jsx';
@@ -12,7 +11,7 @@ function ProjectCard({ project, wide = false }) {
   return (
     <SpotlightCard
       className={`rounded-2xl border border-ink/8 bg-card p-6 transition-shadow duration-200 hover:[box-shadow:var(--shadow-card)] md:p-7 ${
-        wide ? 'lg:col-span-2' : ''
+        wide ? 'xl:col-span-2' : ''
       }`}
     >
       <h4 className="font-display text-lg font-semibold text-ink">{project.name}</h4>
@@ -36,74 +35,74 @@ function ProjectCard({ project, wide = false }) {
   );
 }
 
-export default function Experience() {
-  const timelineRef = useRef(null);
+/* Each role is a numbered editorial row: sticky meta rail on the left,
+ * project cards on the right, a hairline that draws itself in as the row
+ * enters the viewport. */
+function RoleRow({ role, index }) {
   const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: timelineRef,
-    offset: ['start 0.7', 'end 0.55'],
-  });
-  const scaleY = useSpring(scrollYProgress, { stiffness: 60, damping: 20, restDelta: 0.001 });
+  return (
+    <li className="relative pt-10 md:pt-12">
+      <motion.span
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px origin-left bg-ink/10"
+        initial={reduced ? undefined : { scaleX: 0 }}
+        whileInView={reduced ? undefined : { scaleX: 1 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.9, ease: [0.22, 0.61, 0.27, 0.98] }}
+      />
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
+        <Reveal className="lg:sticky lg:top-24 lg:self-start">
+          <p aria-hidden className="font-mono text-sm tabular-nums text-accent-deep">
+            {String(index + 1).padStart(2, '0')}
+          </p>
+          <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+            {role.role}
+          </h3>
+          <p className="mt-1.5 text-lg font-semibold text-accent">
+            {role.company}
+            {role.meta ? (
+              <span className="ml-2 text-sm font-normal text-muted">({role.meta})</span>
+            ) : null}
+          </p>
+          <p className="mt-3 flex flex-wrap items-center gap-x-3 text-sm text-muted">
+            <span className="font-medium text-ink/70">{role.period}</span>
+            <span className="inline-flex items-center gap-1">
+              <MapPin size={13} aria-hidden />
+              {role.location}
+            </span>
+          </p>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <div className="grid gap-5 xl:grid-cols-1">
+            {role.projects.map((project) => (
+              <ProjectCard key={project.name} project={project} wide={role.projects.length === 1} />
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </li>
+  );
+}
 
+export default function Experience() {
   return (
     <section id="experience" aria-labelledby="experience-heading" className="py-24 md:py-32">
       <Container>
         <Reveal>
           <SectionHeading
             id="experience-heading"
-            eyebrow="Experience"
-            title="Seven years, five teams, one throughline: platforms that scale."
+            index="02"
+            eyebrow="Work"
+            title="Eight years, five teams, one throughline: platforms that scale."
             lede="From AWS-backed service apps to composable storefronts for global brands — each role built on the last."
           />
         </Reveal>
 
-        <div ref={timelineRef} className="relative mt-16">
-          {/* Timeline rail: static hairline plus the accent line that draws itself on scroll */}
-          <div aria-hidden className="absolute bottom-2 left-[7px] top-2 w-px bg-ink/10" />
-          <motion.div
-            aria-hidden
-            style={{ scaleY: reduced ? 1 : scaleY }}
-            className="absolute bottom-2 left-[7px] top-2 w-px origin-top bg-accent"
-          />
-
-          <ol className="space-y-14 md:space-y-16">
-            {experience.map((role) => (
-              <li key={`${role.company}-${role.period}`} className="relative pl-10 md:pl-14">
-                <span
-                  aria-hidden
-                  className="absolute left-0 top-1.5 size-[15px] rounded-full border-2 border-accent bg-paper shadow-[0_0_12px_var(--btn-glow)]"
-                />
-                <Reveal>
-                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <h3 className="font-display text-xl font-semibold text-ink md:text-2xl">
-                      {role.role}
-                      {/* Inline "Role · Company" from sm up; stacked lines on mobile, no dot */}
-                      <span className="text-accent max-sm:hidden"> ·&nbsp;</span>
-                      <span className="block sm:inline">{role.company}</span>
-                    </h3>
-                    {role.meta ? <span className="text-sm text-muted">({role.meta})</span> : null}
-                  </div>
-                  <p className="mt-1.5 flex flex-wrap items-center gap-x-3 text-sm text-muted">
-                    <span className="font-medium text-ink/70">{role.period}</span>
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin size={13} aria-hidden />
-                      {role.location}
-                    </span>
-                  </p>
-                  <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                    {role.projects.map((project) => (
-                      <ProjectCard
-                        key={project.name}
-                        project={project}
-                        wide={role.projects.length === 1}
-                      />
-                    ))}
-                  </div>
-                </Reveal>
-              </li>
-            ))}
-          </ol>
-        </div>
+        <ol className="mt-16 space-y-16 md:space-y-20">
+          {experience.map((role, i) => (
+            <RoleRow key={`${role.company}-${role.period}`} role={role} index={i} />
+          ))}
+        </ol>
       </Container>
     </section>
   );

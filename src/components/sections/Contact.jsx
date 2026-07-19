@@ -5,42 +5,57 @@ import Button from '../ui/Button.jsx';
 import { identity } from '../../data/profile.js';
 import { useRevealedContact } from '../../hooks/useRevealedContact.js';
 
+/* Full-viewport closer; the footer line lives here too. */
 export default function Contact() {
   const { email, emailHref, phone, phoneHref } = useRevealedContact();
 
   return (
-    <section id="contact" aria-labelledby="contact-heading" className="bg-cloud py-24 md:py-32">
-      <Container>
-        <Reveal className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent">Contact</p>
+    <section
+      id="contact"
+      aria-labelledby="contact-heading"
+      className="relative flex min-h-[85svh] flex-col overflow-hidden bg-cloud"
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_60%_at_50%_100%,var(--hero-wash),transparent)]"
+      />
+      <Container className="relative flex flex-1 flex-col justify-center py-24 md:py-32">
+        <Reveal className="mx-auto max-w-4xl text-center">
+          <p className="flex items-baseline justify-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-accent">
+            <span aria-hidden className="font-mono text-sm tabular-nums text-muted">06</span>
+            Contact
+          </p>
           <h2
             id="contact-heading"
-            className="mt-3 font-display text-3xl font-semibold tracking-tight text-balance text-ink md:text-5xl"
+            className="mt-5 font-display text-[clamp(2.5rem,7vw,5.5rem)] font-semibold leading-[1.04] tracking-tight text-balance text-ink"
           >
-            Let&rsquo;s build something resilient.
+            Let&rsquo;s build something{' '}
+            <span className="bg-[linear-gradient(92deg,var(--grad-accent-from),var(--grad-accent-to))] bg-clip-text text-transparent">
+              resilient.
+            </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-            Open to senior full-stack and composable commerce roles. The fastest way to reach me is
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted md:text-lg">
+            Open to senior engineering and composable commerce roles. The fastest way to reach me is
             email.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Button href={emailHref} variant="primary" className="group">
-              <Mail size={16} aria-hidden />
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <Button href={emailHref} variant="primary" className="group px-8 py-4 text-base">
+              <Mail size={17} aria-hidden />
               Email me
               <ArrowUpRight
-                size={15}
+                size={16}
                 aria-hidden
                 className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
               />
             </Button>
-            <Button href={identity.resumeFile} variant="secondary" download>
-              <Download size={16} aria-hidden />
+            <Button href={identity.resumeFile} variant="secondary" download className="px-8 py-4 text-base">
+              <Download size={17} aria-hidden />
               Download resume
             </Button>
           </div>
 
-          <ul className="mt-12 flex flex-col items-center justify-center gap-x-10 gap-y-4 text-sm sm:flex-row">
+          <ul className="mt-14 flex flex-col items-center justify-center gap-x-10 gap-y-4 text-sm sm:flex-row">
             <li>
               <a
                 href={emailHref}
@@ -68,11 +83,25 @@ export default function Contact() {
               >
                 <Linkedin size={15} className="text-accent" aria-hidden />
                 linkedin.com/in/adeshanand
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </li>
           </ul>
         </Reveal>
       </Container>
+
+      {/* role restores the contentinfo landmark a <footer> loses when nested
+          inside section/main */}
+      <footer role="contentinfo" className="relative border-t border-ink/8 py-6">
+        <Container className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <p className="text-sm text-muted">
+            © {new Date().getFullYear()} {identity.name} · {identity.location}
+          </p>
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">
+            Composable commerce · engineered to scale
+          </p>
+        </Container>
+      </footer>
     </section>
   );
 }

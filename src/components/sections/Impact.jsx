@@ -37,9 +37,12 @@ function Stat({ stat, index }) {
 
   return (
     <Reveal delay={index * 0.08} className="h-full">
-      <div ref={ref} className="h-full rounded-2xl border border-ink/8 bg-card p-6 md:p-7">
-        <p className="font-display text-4xl font-semibold tracking-tight text-ink md:text-5xl">
-          {stat.prefix ? <span className="text-2xl text-muted md:text-3xl">{stat.prefix}</span> : null}
+      <div ref={ref} className="h-full border-t border-ink/10 pt-6">
+        <p aria-hidden className="font-mono text-xs tabular-nums text-accent-deep">
+          {String(index + 1).padStart(2, '0')}
+        </p>
+        <p className="mt-3 font-display text-5xl font-semibold tracking-tight text-ink md:text-6xl">
+          {stat.prefix ? <span className="text-3xl text-muted md:text-4xl">{stat.prefix}</span> : null}
           {value}
           {stat.suffix ? <span className="text-accent">{stat.suffix}</span> : null}
         </p>
@@ -52,9 +55,9 @@ function Stat({ stat, index }) {
 
 export default function Impact() {
   return (
-    <section aria-label="Career impact" className="bg-cloud py-16 md:py-24">
+    <section aria-label="Career impact" className="py-20 md:py-28">
       <Container>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-5">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 md:gap-8">
           {impact.map((stat, i) => (
             <Stat key={stat.label} stat={stat} index={i} />
           ))}

@@ -5,21 +5,20 @@ import { useSyncExternalStore } from 'react';
  * ThemeToggles — desktop and mobile — and both must stay in sync).
  *
  * Single source of truth: the data-theme attribute on <html> (set before
- * first paint by public/theme-init.js). When it is absent, the OS
- * preference applies. React state is derived from that via
- * useSyncExternalStore, so no hook instance can hold a stale copy.
+ * first paint by public/theme-init.js). DARK IS THE DEFAULT — when the
+ * attribute is absent the site is dark; the OS preference is deliberately
+ * not consulted. React state derives via useSyncExternalStore, so no hook
+ * instance can hold a stale copy.
  */
 const listeners = new Set();
 const notify = () => listeners.forEach((l) => l());
 
 function currentTheme() {
-  const attr = document.documentElement.dataset.theme;
-  if (attr === 'light' || attr === 'dark') return attr;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
 }
 
 function syncThemeColorMeta(theme) {
-  const color = theme === 'dark' ? '#070b14' : '#ffffff';
+  const color = theme === 'dark' ? '#060a0f' : '#eef3f5';
   document
     .querySelectorAll('meta[name="theme-color"]')
     .forEach((m) => m.setAttribute('content', color));
@@ -27,25 +26,20 @@ function syncThemeColorMeta(theme) {
 
 function subscribe(listener) {
   listeners.add(listener);
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  // OS switch: only matters when no explicit attribute forces a theme
-  const onMq = () => notify();
   // Another tab changed the stored choice: mirror it here
   const onStorage = (e) => {
     if (e.key !== 'theme') return;
     if (e.newValue === 'light' || e.newValue === 'dark') {
       document.documentElement.dataset.theme = e.newValue;
     } else {
-      delete document.documentElement.dataset.theme;
+      delete document.documentElement.dataset.theme; // back to the dark default
     }
     syncThemeColorMeta(currentTheme());
     notify();
   };
-  mq.addEventListener('change', onMq);
   window.addEventListener('storage', onStorage);
   return () => {
     listeners.delete(listener);
-    mq.removeEventListener('change', onMq);
     window.removeEventListener('storage', onStorage);
   };
 }

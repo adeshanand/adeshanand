@@ -2,90 +2,66 @@
 
 /*
  * Design tokens — the single place to rebrand or retheme the site.
- * Raw palette lives on :root and flips with the theme; Tailwind utilities
- * consume it through the inline @theme mapping below, so every existing
- * class (bg-paper, text-ink, border-ink/8 …) adapts automatically.
- *
- * Theme resolution order:
- *   1. data-theme="light|dark" on <html> (explicit user choice, set by
- *      public/theme-init.js before first paint and by the nav toggle)
- *   2. otherwise the OS preference via prefers-color-scheme
+ * DARK IS THE DEFAULT: the raw palette on :root is the dark theme, and the
+ * light palette applies only on an explicit data-theme="light" (set by the
+ * nav toggle, persisted by public/theme-init.js before first paint). The
+ * OS color-scheme preference is deliberately NOT consulted — the design is
+ * dark-first for every new visitor. Tailwind utilities consume the tokens
+ * through the inline @theme mapping below, so every existing class
+ * (bg-paper, text-ink, border-ink/8 …) adapts automatically.
  */
 :root {
-  color-scheme: light;
-  --c-paper: #ffffff;
-  --c-cloud: #f6f8fb;
-  --c-card: #ffffff;
-  --c-ink: #0b1220;
-  --c-muted: #475569;
-  --c-accent: #4f46e5;
-  --c-accent-deep: #4338ca;
-  --c-accent-soft: #eef2ff;
-  --c-accent-strong: #4f46e5;
-  --c-accent-strong-hover: #4338ca;
-
-  --grid-line: rgba(11, 18, 32, 0.045);
-  --hero-wash: rgba(79, 70, 229, 0.07);
-  --aurora-1: rgba(79, 70, 229, 0.14);
-  --aurora-2: rgba(124, 58, 237, 0.1);
-  --aurora-3: rgba(14, 165, 233, 0.08);
-  --spot-color: rgba(79, 70, 229, 0.07);
-  --shadow-card: 0 12px 32px rgba(11, 18, 32, 0.08);
-  --btn-glow: rgba(79, 70, 229, 0.28);
-  --grad-accent-from: #4f46e5;
-  --grad-accent-to: #7c3aed;
-}
-
-/* Dark palette — keep both blocks below identical */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --c-paper: #070b14;
-    --c-cloud: #0d1424;
-    --c-card: #101a2e;
-    --c-ink: #e8ecf4;
-    --c-muted: #9aa8bd;
-    --c-accent: #8b95f9;
-    --c-accent-deep: #a5b4fc;
-    --c-accent-soft: rgba(129, 140, 248, 0.13);
-    --c-accent-strong: #4f46e5;
-    --c-accent-strong-hover: #5a5ceb;
-
-    --grid-line: rgba(232, 236, 244, 0.05);
-    --hero-wash: rgba(99, 102, 241, 0.14);
-    --aurora-1: rgba(99, 102, 241, 0.22);
-    --aurora-2: rgba(139, 92, 246, 0.16);
-    --aurora-3: rgba(34, 211, 238, 0.1);
-    --spot-color: rgba(129, 140, 248, 0.09);
-    --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.55);
-    --btn-glow: rgba(99, 102, 241, 0.4);
-    --grad-accent-from: #818cf8;
-    --grad-accent-to: #c4b5fd;
-  }
-}
-:root[data-theme='dark'] {
   color-scheme: dark;
-  --c-paper: #070b14;
-  --c-cloud: #0d1424;
-  --c-card: #101a2e;
-  --c-ink: #e8ecf4;
-  --c-muted: #9aa8bd;
-  --c-accent: #8b95f9;
-  --c-accent-deep: #a5b4fc;
-  --c-accent-soft: rgba(129, 140, 248, 0.13);
-  --c-accent-strong: #4f46e5;
-  --c-accent-strong-hover: #5a5ceb;
+  --c-paper: #060a0f;
+  --c-cloud: #0b111a;
+  --c-card: #0e1622;
+  --c-ink: #eaf2f2;
+  --c-muted: #7c8a96;
+  --c-accent: #22d3ee;
+  --c-accent-deep: #67e8f9;
+  --c-accent-soft: rgba(34, 211, 238, 0.12);
+  --c-accent-strong: #22d3ee;
+  --c-accent-strong-hover: #4adef2;
+  --c-on-accent: #060a0f;
 
-  --grid-line: rgba(232, 236, 244, 0.05);
-  --hero-wash: rgba(99, 102, 241, 0.14);
-  --aurora-1: rgba(99, 102, 241, 0.22);
-  --aurora-2: rgba(139, 92, 246, 0.16);
-  --aurora-3: rgba(34, 211, 238, 0.1);
-  --spot-color: rgba(129, 140, 248, 0.09);
+  --grid-line: rgba(234, 242, 242, 0.05);
+  --hero-wash: rgba(34, 211, 238, 0.07);
+  --aurora-1: rgba(34, 211, 238, 0.14);
+  --aurora-2: rgba(124, 138, 150, 0.12);
+  --aurora-3: rgba(34, 211, 238, 0.07);
+  --spot-color: rgba(34, 211, 238, 0.08);
   --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.55);
-  --btn-glow: rgba(99, 102, 241, 0.4);
-  --grad-accent-from: #818cf8;
-  --grad-accent-to: #c4b5fd;
+  --btn-glow: rgba(34, 211, 238, 0.28);
+  --accent-glow: rgba(34, 211, 238, 0.28);
+  --grad-accent-from: #22d3ee;
+  --grad-accent-to: #a5f3fc;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --c-paper: #eef3f5;
+  --c-cloud: #e2e9ec;
+  --c-card: #ffffff;
+  --c-ink: #071018;
+  --c-muted: #55636e;
+  --c-accent: #0c657e;
+  --c-accent-deep: #155e75;
+  --c-accent-soft: rgba(34, 211, 238, 0.18);
+  --c-accent-strong: #071018;
+  --c-accent-strong-hover: #16222e;
+  --c-on-accent: #22d3ee;
+
+  --grid-line: rgba(7, 16, 24, 0.05);
+  --hero-wash: rgba(34, 211, 238, 0.12);
+  --aurora-1: rgba(34, 211, 238, 0.18);
+  --aurora-2: rgba(85, 99, 110, 0.14);
+  --aurora-3: rgba(34, 211, 238, 0.09);
+  --spot-color: rgba(12, 101, 126, 0.08);
+  --shadow-card: 0 12px 32px rgba(7, 16, 24, 0.08);
+  --btn-glow: rgba(7, 16, 24, 0.22);
+  --accent-glow: rgba(12, 101, 126, 0.3);
+  --grad-accent-from: #0c657e;
+  --grad-accent-to: #0891b2;
 }
 
 /* Utilities resolve to var() at the point of use, so opacity modifiers
@@ -101,6 +77,7 @@
   --color-accent-soft: var(--c-accent-soft);
   --color-accent-strong: var(--c-accent-strong);
   --color-accent-strong-hover: var(--c-accent-strong-hover);
+  --color-on-accent: var(--c-on-accent);
 }
 
 @theme {
@@ -234,5 +211,33 @@ html.vt-active body {
 @media (hover: hover) {
   .spotlight-card:hover::before {
     opacity: 1;
+  }
+}
+
+/* ---------- Infinite marquee (brand strip) ----------
+ * Track holds two copies of the content; -50% translate loops seamlessly. */
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track,
+.marquee[data-paused='true'] .marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
   }
 }

@@ -1,3 +1,5 @@
+/* Dark is the site default; 404.html loads theme-init.js, which applies
+ * data-theme="light" only when the visitor explicitly chose light. */
 * {
   margin: 0;
   box-sizing: border-box;
@@ -6,8 +8,8 @@ body {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: #ffffff;
-  color: #0b1220;
+  background: #060a0f;
+  color: #eaf2f2;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   text-align: center;
   padding: 2rem;
@@ -17,7 +19,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #4f46e5;
+  color: #22d3ee;
 }
 h1 {
   margin-top: 0.75rem;
@@ -27,7 +29,7 @@ h1 {
 }
 .lede {
   margin-top: 0.875rem;
-  color: #475569;
+  color: #7c8a96;
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -36,30 +38,38 @@ a {
   margin-top: 2rem;
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
-  background: #4f46e5;
-  color: #ffffff;
+  background: #22d3ee;
+  color: #060a0f;
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
 }
 a:hover {
-  background: #4338ca;
+  background: #4adef2;
 }
 a:focus-visible {
-  outline: 2px solid #4f46e5;
+  outline: 2px solid #22d3ee;
   outline-offset: 3px;
 }
 
-/* Dark theme (follows the OS — this page ships no JS) */
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #070b14;
-    color: #e8ecf4;
-  }
-  .code {
-    color: #8b95f9;
-  }
-  .lede {
-    color: #9aa8bd;
-  }
+/* Explicit light choice */
+:root[data-theme='light'] body {
+  background: #eef3f5;
+  color: #071018;
+}
+:root[data-theme='light'] .code {
+  color: #0c657e;
+}
+:root[data-theme='light'] .lede {
+  color: #55636e;
+}
+:root[data-theme='light'] a {
+  background: #071018;
+  color: #22d3ee;
+}
+:root[data-theme='light'] a:hover {
+  background: #16222e;
+}
+:root[data-theme='light'] a:focus-visible {
+  outline-color: #0c657e;
 }

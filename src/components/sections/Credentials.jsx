@@ -1,9 +1,9 @@
-import { Award, ExternalLink, GraduationCap } from 'lucide-react';
+import { Award, ExternalLink, GraduationCap, ShieldCheck } from 'lucide-react';
 import Container from '../ui/Container.jsx';
 import SectionHeading from '../ui/SectionHeading.jsx';
 import Reveal from '../ui/Reveal.jsx';
 import SpotlightCard from '../ui/SpotlightCard.jsx';
-import { certifications, education } from '../../data/profile.js';
+import { certifications, education, recognitions } from '../../data/profile.js';
 
 export default function Credentials() {
   return (
@@ -12,9 +12,10 @@ export default function Credentials() {
         <Reveal>
           <SectionHeading
             id="credentials-heading"
+            index="04"
             eyebrow="Credentials"
-            title="Certified where it counts."
-            lede="Cloud architecture and commerce platform certifications, backed by formal computer-science training."
+            title="Beyond AWS: commerce, AI, and security."
+            lede="Salesforce, Oracle, and security credentials — plus security research recognition — backed by formal computer-science training."
           />
         </Reveal>
 
@@ -25,7 +26,7 @@ export default function Credentials() {
             </h3>
             <div className="mt-5 space-y-4">
               {certifications.map((cert, i) => (
-                <Reveal key={cert.credentialId} delay={i * 0.08}>
+                <Reveal key={cert.name} delay={i * 0.08}>
                   <SpotlightCard className="flex gap-4 rounded-2xl border border-ink/8 bg-card p-6 transition-shadow duration-200 hover:[box-shadow:var(--shadow-card)]">
                     <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
                       <Award size={20} aria-hidden />
@@ -35,12 +36,15 @@ export default function Credentials() {
                         {cert.name}
                       </p>
                       <p className="mt-1 text-sm text-muted">
-                        {cert.issuer} · {cert.date}
+                        {cert.issuer}
+                        {cert.date ? ` · ${cert.date}` : null}
                       </p>
-                      <p className="mt-1.5 text-xs text-muted">
-                        Credential ID:{' '}
-                        <span className="font-mono text-ink/70">{cert.credentialId}</span>
-                      </p>
+                      {cert.credentialId ? (
+                        <p className="mt-1.5 text-xs text-muted">
+                          Credential ID:{' '}
+                          <span className="font-mono text-ink/70">{cert.credentialId}</span>
+                        </p>
+                      ) : null}
                       {cert.verifyUrl ? (
                         <a
                           href={cert.verifyUrl}
@@ -49,6 +53,7 @@ export default function Credentials() {
                           className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent transition-colors hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
                         >
                           Verify credential
+                          <span className="sr-only"> (opens in a new tab)</span>
                           <ExternalLink size={12} aria-hidden />
                         </a>
                       ) : null}
@@ -61,6 +66,37 @@ export default function Credentials() {
 
           <div className="lg:col-span-2">
             <h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">
+              Recognitions
+            </h3>
+            <div className="mt-5 space-y-4">
+              {recognitions.map((rec, i) => (
+                <Reveal key={rec.name} delay={i * 0.08}>
+                  <SpotlightCard className="flex gap-4 rounded-2xl border border-ink/8 bg-card p-6 transition-shadow duration-200 hover:[box-shadow:var(--shadow-card)]">
+                    <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                      <ShieldCheck size={20} aria-hidden />
+                    </span>
+                    <div>
+                      <p className="font-display text-base font-semibold leading-snug text-ink">
+                        {rec.name}
+                      </p>
+                      <p className="mt-1 text-sm leading-relaxed text-muted">{rec.body}</p>
+                      <a
+                        href={rec.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent transition-colors hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+                      >
+                        View program
+                        <span className="sr-only"> (opens in a new tab)</span>
+                        <ExternalLink size={12} aria-hidden />
+                      </a>
+                    </div>
+                  </SpotlightCard>
+                </Reveal>
+              ))}
+            </div>
+
+            <h3 className="mt-10 text-xs font-semibold uppercase tracking-[0.22em] text-muted">
               Education
             </h3>
             <div className="mt-5 space-y-4">
