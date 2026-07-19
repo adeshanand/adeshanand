@@ -25,9 +25,25 @@ const MAX_PIXELS = 2560 * 1440;
 const LINK_DIST = 0.16; // in aspect-corrected UV space
 const MAX_LINKS = 480;
 
-// "AA" monogram ball-physics (Tier 4) — hand-rolled like Lusion's balloons
-const MONO_MIN_WIDTH = 1000; // CSS px; below this the monogram is skipped
-const MONO_MAX_BALLS = 240;
+// Certification monogram ball-physics (Tier 4) — hand-rolled like Lusion's
+// balloons. Three certification wordmarks display together in a vertical
+// stack — AWS / SFCC / GenAI — each in its brand color ("GenAI" is split:
+// grey Gen + electric-blue AI). Phones stay clean.
+const MONO_ROWS = [
+  { parts: [{ text: 'AWS', color: [1.0, 0.6, 0.0] }] }, // #ff9900
+  { parts: [{ text: 'SFCC', color: [0.0, 0.631, 0.878] }] }, // #00a1e0
+  {
+    parts: [
+      { text: 'Gen', color: [0.294, 0.333, 0.388] }, // #4b5563 dark grey
+      { text: 'AI', color: [0.161, 0.475, 1.0] }, // #2979ff electric blue
+    ],
+  },
+];
+const MONO_MIN_WIDTH = 640; // CSS px; below this the monogram is skipped
+const MONO_MAX_BALLS = 720;
+const MONO_MIN_FONT = 24; // px; below this the letters are mush — skip
+const MONO_FADE_FRAMES = 120; // reveal fades back to watercolor over ~2s
+const MONO_WASH = 0.63; // how far the resting color washes toward the paper
 const MONO_SPRING = 0.05;
 const MONO_DAMPING = 0.9;
 const MOUSE_RADIUS_PX = 110;
@@ -129,13 +145,16 @@ void main(){ float a = v_fade * u_alpha; o = vec4(u_colB * a, a); }`; // premult
 const BALL_VS = `#version 300 es
 layout(location=0) in vec2 a_corner;       // unit quad [-1,1]
 layout(location=1) in vec3 a_inst;         // center.xy (css px), radius (css px)
-layout(location=2) in float a_shade;       // 0 = secondary color, 1 = primary
+layout(location=2) in vec3 a_color;        // per-ball current color
+layout(location=3) in float a_alpha;       // watercolor translucency
 uniform vec2 u_size;                       // css px
 out vec2 v_p;
-out float v_shade;
+out vec3 v_color;
+out float v_alpha;
 void main(){
   v_p = a_corner;
-  v_shade = a_shade;
+  v_color = a_color;
+  v_alpha = a_alpha;
   vec2 px = a_inst.xy + a_corner * a_inst.z;
   vec2 clip = vec2(px.x / u_size.x * 2.0 - 1.0, 1.0 - px.y / u_size.y * 2.0);
   gl_Position = vec4(clip, 0.0, 1.0);
@@ -143,8 +162,7 @@ void main(){
 
 const BALL_FS = `#version 300 es
 precision highp float;
-in vec2 v_p; in float v_shade; out vec4 o;
-uniform vec3 u_ball; uniform vec3 u_ballAlt;
+in vec2 v_p; in vec3 v_color; in float v_alpha; out vec4 o;
 void main(){
   float r2 = dot(v_p, v_p);
   float edge = fwidth(r2) * 1.5;
@@ -156,9 +174,9 @@ void main(){
   float diff = max(0.0, dot(n, l));
   float spec = pow(max(0.0, dot(n, normalize(l + vec3(0.0, 0.0, 1.0)))), 42.0);
   float rim = pow(1.0 - n.z, 2.2) * 0.35;
-  vec3 base = mix(u_ballAlt, u_ball, v_shade);
-  vec3 col = base * (0.42 + 0.62 * diff) + vec3(spec * 0.5) + base * rim;
-  o = vec4(col * disc, disc); // premultiplied
+  vec3 col = v_color * (0.42 + 0.62 * diff) + vec3(spec * 0.5 * v_alpha) + v_color * rim;
+  float a = disc * v_alpha;
+  o = vec4(col * a, a); // premultiplied
 }`;
 
 const COMPOSITE_FS = `#version 300 es
@@ -222,42 +240,71 @@ function hexToRgb(hex) {
   return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
 }
 
-/* Rasterize "AA" into a 2D canvas and grid-sample filled cells into ball
- * targets (css px) inside the given region. Grid step adapts so the count
- * stays under MONO_MAX_BALLS. */
-function sampleMonogram(region) {
+/* Measure a row's rendered width at a given font size. */
+function rowWidth(ctx, parts, fontPx) {
+  // Weight 650 keeps the counters (the hole of an e) open enough to
+  // survive dot-sampling; tracking separates neighbouring glyphs
+  ctx.font = `650 ${fontPx}px "Sora Variable", Sora, Inter, sans-serif`;
+  ctx.letterSpacing = `${Math.round(fontPx * 0.07)}px`;
+  return parts.reduce((w, p) => w + ctx.measureText(p.text).width, 0);
+}
+
+/* Rasterize one row (possibly multi-colored parts) centered in a
+ * sub-region and grid-sample filled cells into {x, y, color} targets
+ * (css px, canvas-relative). Step adapts to keep the count bounded. */
+function sampleRow(sub, parts, fontPx, cap) {
   const c = document.createElement('canvas');
-  c.width = Math.max(2, Math.round(region.w));
-  c.height = Math.max(2, Math.round(region.h));
+  c.width = Math.max(2, Math.round(sub.w));
+  c.height = Math.max(2, Math.round(sub.h));
   const ctx = c.getContext('2d', { willReadFrequently: true });
   if (!ctx) return [];
-  let fontPx = Math.round(region.h * 0.92);
-  const font = (px) => `800 ${px}px "Sora Variable", Sora, Inter, sans-serif`;
-  ctx.font = font(fontPx);
-  // Fit to the region's width too — narrow viewports must not clip glyphs
-  const measured = ctx.measureText('AA').width;
-  if (measured > region.w * 0.94) {
-    fontPx = Math.floor((fontPx * region.w * 0.94) / measured);
-    ctx.font = font(fontPx);
-  }
-  ctx.textAlign = 'center';
+  ctx.font = `650 ${fontPx}px "Sora Variable", Sora, Inter, sans-serif`;
+  ctx.letterSpacing = `${Math.round(fontPx * 0.07)}px`;
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#fff';
-  ctx.fillText('AA', c.width / 2, c.height / 2);
+  // Draw parts left-to-right, centered as a whole; remember each part's
+  // x-extent so every sampled dot inherits its part's brand color
+  const widths = parts.map((p) => ctx.measureText(p.text).width);
+  const total = widths.reduce((a, b) => a + b, 0);
+  let x = (c.width - total) / 2;
+  const bounds = [];
+  for (let i = 0; i < parts.length; i++) {
+    ctx.textAlign = 'left';
+    ctx.fillText(parts[i].text, x, c.height / 2);
+    bounds.push({ until: x + widths[i], color: parts[i].color });
+    x += widths[i];
+  }
   const img = ctx.getImageData(0, 0, c.width, c.height).data;
-  let step = Math.max(10, Math.round(region.h / 16));
+  // Coverage sampling per cell: a 3x3 sub-grid must show enough ink for a
+  // dot. Single-point sampling loses thin features (the crossbar of a
+  // lowercase e reads as o); any-hit sampling inflates stroke edges and
+  // closes the counters. Requiring ~1/3 coverage catches crossbars at any
+  // grid phase while keeping strokes their true width.
+  const inked = (x, y) => {
+    const cx = Math.min(c.width - 1, Math.max(0, x | 0));
+    const cy = Math.min(c.height - 1, Math.max(0, y | 0));
+    return img[(cy * c.width + cx) * 4 + 3] > 100 ? 1 : 0;
+  };
+  let step = Math.max(4, Math.round(fontPx / 14));
   for (let attempt = 0; attempt < 4; attempt++) {
+    const d = step * 0.32;
     const targets = [];
     for (let y = step / 2; y < c.height; y += step) {
-      for (let x = step / 2; x < c.width; x += step) {
-        const idx = ((y | 0) * c.width + (x | 0)) * 4 + 3;
-        if (img[idx] > 128) {
-          targets.push({ x: region.x + x, y: region.y + y });
+      for (let px = step / 2; px < c.width; px += step) {
+        let cover = 0;
+        for (let oy = -1; oy <= 1; oy++) {
+          for (let ox = -1; ox <= 1; ox++) {
+            cover += inked(px + ox * d, y + oy * d);
+          }
+        }
+        if (cover >= 3) {
+          const part = bounds.find((b) => px <= b.until) ?? bounds[bounds.length - 1];
+          targets.push({ x: sub.x + px, y: sub.y + y, color: part.color });
         }
       }
     }
-    if (targets.length <= MONO_MAX_BALLS) return targets;
-    step = Math.round(step * 1.25);
+    if (targets.length <= cap) return targets;
+    step = Math.round(step * 1.3);
   }
   return [];
 }
@@ -362,39 +409,116 @@ export function createField(canvas, { particleCount = 220, onContextLost } = {})
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   const ballInstBuf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, ballInstBuf);
-  gl.bufferData(gl.ARRAY_BUFFER, MONO_MAX_BALLS * 4 * 4, gl.DYNAMIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, MONO_MAX_BALLS * 7 * 4, gl.DYNAMIC_DRAW);
   gl.enableVertexAttribArray(1);
-  gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 16, 0);
+  gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 28, 0);
   gl.vertexAttribDivisor(1, 1);
   gl.enableVertexAttribArray(2);
-  gl.vertexAttribPointer(2, 1, gl.FLOAT, false, 16, 12);
+  gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 28, 12);
   gl.vertexAttribDivisor(2, 1);
+  gl.enableVertexAttribArray(3);
+  gl.vertexAttribPointer(3, 1, gl.FLOAT, false, 28, 24);
+  gl.vertexAttribDivisor(3, 1);
   gl.bindVertexArray(null);
 
   /* Ball sim state (css px space). Populated by rebuildMonogram(). */
   let balls = null;
-  const ballInstData = new Float32Array(MONO_MAX_BALLS * 4);
+  const ballInstData = new Float32Array(MONO_MAX_BALLS * 7);
+
+  /* The headline's measured rect (css px, canvas-relative), fed by the
+   * owner. The monogram lives in whatever space remains to its right and
+   * vertically centers on the text band — DOM drives the scene. */
+  let textBounds = null;
+
+  function setTextBounds(b) {
+    if (
+      !textBounds ||
+      Math.abs(b.right - textBounds.right) > 24 ||
+      Math.abs(b.top - textBounds.top) > 24 ||
+      Math.abs((b.badgeRight || 0) - (textBounds.badgeRight || 0)) > 24 ||
+      Math.abs(b.cy - textBounds.cy) > 24
+    ) {
+      textBounds = b;
+      monoW = -1; // force a monogram rebuild on the next resize()
+    }
+  }
 
   function rebuildMonogram(cssW, cssH) {
-    if (cssW < MONO_MIN_WIDTH) {
+    // Never build from a guess: without measured text bounds the region
+    // could be wrong, and a later correction would retarget balls
+    // mid-assembly — the swerve reads as jank
+    if (cssW < MONO_MIN_WIDTH || !textBounds) {
       balls = null;
       return;
     }
-    // Right side of the hero, clear of the headline column; the hero is now
-    // full-viewport, so center the glyphs a little lower
-    const region = {
-      x: cssW * 0.64,
-      y: cssH * 0.14,
-      w: cssW * 0.3,
-      h: Math.min(cssH * 0.34, 300),
-    };
-    const targets = sampleMonogram(region);
-    if (!targets.length) {
+    // Preferred: the space right of the measured headline. Fallback for
+    // narrow screens: the band above the headline (right of the badge) —
+    // the stack relocates rather than disappearing.
+    let region = null;
+    const sideX0 = Math.max(cssW * 0.55, textBounds.right + 40);
+    const sideAvail = cssW * 0.96 - sideX0;
+    if (sideAvail >= 230) {
+      const w = Math.min(sideAvail, 640);
+      const h = Math.min(cssH * 0.5, 430, w * 1.05);
+      region = {
+        x: sideX0 + (sideAvail - w) / 2,
+        // Center the stack on the hero's content band, not the headline
+        // alone — it reads as a full-height companion column
+        y: Math.min(Math.max(cssH * 0.46 - h / 2, 90), Math.max(cssH * 0.94 - h, 90)),
+        w,
+        h,
+      };
+    } else {
+      const bandTop = 74; // clear the fixed nav (64px) plus breathing room
+      const bandH = textBounds.top - 14 - bandTop;
+      if (bandH < 80) {
+        balls = null;
+        return;
+      }
+      const x0 = Math.max(cssW * 0.35, (textBounds.badgeRight || 0) + 28);
+      const w = cssW * 0.96 - x0;
+      if (w < 200) {
+        balls = null;
+        return;
+      }
+      region = { x: x0, y: bandTop, w, h: Math.min(bandH, 170) };
+    }
+
+    // Always a vertical 3-stack: AWS on top, SFCC, then GenAI. The GenAI
+    // row gets a larger height share — lowercase letterforms need more
+    // dot-resolution than caps to stay readable — and each row fits its
+    // own font to its band
+    const gapV = region.h * 0.06;
+    const usable = region.h - 2 * gapV;
+    const weights = [0.3, 0.3, 0.4];
+    const subs = [];
+    const fonts = [];
+    let yCursor = region.y;
+    for (let i = 0; i < MONO_ROWS.length; i++) {
+      const h = usable * weights[i];
+      let f = Math.floor(h * 0.92);
+      const wpx = rowWidth(measureCtx, MONO_ROWS[i].parts, f);
+      if (wpx > region.w * 0.94) f = Math.floor((f * region.w * 0.94) / wpx);
+      subs.push({ x: region.x, y: yCursor, w: region.w, h });
+      fonts.push(f);
+      yCursor += h + gapV;
+    }
+    if (Math.min(...fonts) < MONO_MIN_FONT) {
+      balls = null;
+      return;
+    }
+    const targets = MONO_ROWS.flatMap((row, i) =>
+      sampleRow(subs[i], row.parts, fonts[i], Math.floor(MONO_MAX_BALLS / 3)).map((t) => ({
+        ...t,
+        font: fonts[i],
+      }))
+    );
+    if (targets.length < 30) {
       balls = null;
       return;
     }
     const prev = balls;
-    const n = targets.length;
+    const n = Math.min(targets.length, MONO_MAX_BALLS);
     balls = {
       n,
       x: new Float32Array(n),
@@ -404,25 +528,34 @@ export function createField(canvas, { particleCount = 220, onContextLost } = {})
       tx: new Float32Array(n),
       ty: new Float32Array(n),
       r: new Float32Array(n),
-      shade: new Float32Array(n),
+      cr: new Float32Array(n),
+      cg: new Float32Array(n),
+      cb: new Float32Array(n),
+      e: new Float32Array(n), // reveal energy: 1 = brand color, 0 = watercolor
     };
+    // Small balls keep the letterforms readable (dot-matrix look); slight
+    // per-ball luminance jitter keeps the dots organic
     for (let i = 0; i < n; i++) {
-      balls.tx[i] = targets[i].x;
-      balls.ty[i] = targets[i].y;
+      const t = targets[i];
+      balls.tx[i] = t.x;
+      balls.ty[i] = t.y;
+      const lum = 0.88 + Math.random() * 0.24;
+      balls.cr[i] = Math.min(1, t.color[0] * lum);
+      balls.cg[i] = Math.min(1, t.color[1] * lum);
+      balls.cb[i] = Math.min(1, t.color[2] * lum);
+      const sizeScale = Math.max(0.6, Math.min(1, (t.font || 90) / 90));
+      balls.r[i] = (1.8 + Math.random() * 0.6) * sizeScale;
       if (prev && i < prev.n) {
         // Resize: carry positions over so the letters re-flow, not re-drop
         balls.x[i] = prev.x[i];
         balls.y[i] = prev.y[i];
         balls.vx[i] = prev.vx[i];
         balls.vy[i] = prev.vy[i];
-        balls.r[i] = prev.r[i];
-        balls.shade[i] = prev.shade[i];
+        balls.e[i] = prev.e[i];
       } else {
         // First build (or extra balls): scatter above so letters assemble
         balls.x[i] = region.x + Math.random() * region.w;
         balls.y[i] = -cssH * (0.1 + Math.random() * 0.5);
-        balls.r[i] = 5.5 + Math.random() * 4;
-        balls.shade[i] = Math.random() < 0.82 ? 1 : 0;
       }
     }
   }
@@ -435,12 +568,13 @@ export function createField(canvas, { particleCount = 220, onContextLost } = {})
   let aspect = 1;
   let cssW = 0;
   let cssH = 0;
-  let ballCol = [0.64, 0.9, 0.21];
+  const measureCtx = document.createElement('canvas').getContext('2d');
 
   const pointerSmooth = new SecondOrder();
   const pointer = { x: 0.5, y: 0.5, px: 0.5, py: 0.5, active: false };
   let colA = [0.64, 0.9, 0.21];
   let colB = [0.53, 0.55, 0.6];
+  let paperCol = [0.93, 0.95, 0.96];
   let alpha = 1;
   let raf = 0;
   let last = 0;
@@ -528,11 +662,13 @@ export function createField(canvas, { particleCount = 220, onContextLost } = {})
     // Monogram ball physics: spring to glyph target, pointer repulsion,
     // pairwise separation — the Lusion balloons recipe, hand-rolled
     if (balls) {
-      const { n, x, y, vx, vy, tx, ty, r } = balls;
+      const { n, x, y, vx, vy, tx, ty, r, e } = balls;
       const mpx = pointer.x * cssW;
       const mpy = pointer.y * cssH;
       const mr2 = MOUSE_RADIUS_PX * MOUSE_RADIUS_PX;
       for (let i = 0; i < n; i++) {
+        // Reveal energy drains back to the watercolor state over ~2s
+        e[i] = Math.max(0, e[i] - dt / MONO_FADE_FRAMES);
         let ax = (tx[i] - x[i]) * MONO_SPRING;
         let ay = (ty[i] - y[i]) * MONO_SPRING;
         if (pointer.active) {
@@ -540,6 +676,7 @@ export function createField(canvas, { particleCount = 220, onContextLost } = {})
           const dy = y[i] - mpy;
           const d2 = dx * dx + dy * dy;
           if (d2 < mr2) {
+            e[i] = 1; // touched: the true certification color reveals
             const d = Math.sqrt(d2 + 1e-4);
             const f = ((MOUSE_RADIUS_PX - d) / MOUSE_RADIUS_PX) * 3.2;
             ax += (dx / d) * f;
@@ -660,18 +797,23 @@ export function createField(canvas, { particleCount = 220, onContextLost } = {})
     if (balls) {
       const m = balls.n;
       for (let i = 0; i < m; i++) {
-        ballInstData[i * 4] = balls.x[i];
-        ballInstData[i * 4 + 1] = balls.y[i];
-        ballInstData[i * 4 + 2] = balls.r[i];
-        ballInstData[i * 4 + 3] = balls.shade[i];
+        const en = balls.e[i];
+        // Resting look is a watercolor wash toward the paper tone; touch
+        // reveals the true brand color, then it fades back
+        const k = MONO_WASH * (1 - en); // 0 when fully revealed
+        ballInstData[i * 7] = balls.x[i];
+        ballInstData[i * 7 + 1] = balls.y[i];
+        ballInstData[i * 7 + 2] = balls.r[i];
+        ballInstData[i * 7 + 3] = balls.cr[i] * (1 - k) + paperCol[0] * k;
+        ballInstData[i * 7 + 4] = balls.cg[i] * (1 - k) + paperCol[1] * k;
+        ballInstData[i * 7 + 5] = balls.cb[i] * (1 - k) + paperCol[2] * k;
+        ballInstData[i * 7 + 6] = 0.58 + 0.42 * en;
       }
       gl.useProgram(progs.ball);
       gl.uniform2f(uni(progs.ball, 'u_size'), cssW, cssH);
-      gl.uniform3fv(uni(progs.ball, 'u_ball'), ballCol);
-      gl.uniform3fv(uni(progs.ball, 'u_ballAlt'), colB);
       gl.bindVertexArray(ballVao);
       gl.bindBuffer(gl.ARRAY_BUFFER, ballInstBuf);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, ballInstData, 0, m * 4);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, ballInstData, 0, m * 7);
       gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, m);
     }
 
@@ -708,6 +850,7 @@ export function createField(canvas, { particleCount = 220, onContextLost } = {})
       raf = 0;
     },
     resize,
+    setTextBounds,
     /* x, y in [0,1] canvas-relative coords */
     setPointer(x, y, active) {
       if (active && !pointer.active) {
@@ -719,10 +862,10 @@ export function createField(canvas, { particleCount = 220, onContextLost } = {})
       pointer.y = y;
       pointer.active = active;
     },
-    setColors({ accent, muted, ball, alpha: a = 1 }) {
+    setColors({ accent, muted, paper, alpha: a = 1 }) {
       colA = hexToRgb(accent);
       colB = hexToRgb(muted);
-      if (ball) ballCol = hexToRgb(ball);
+      if (paper) paperCol = hexToRgb(paper);
       alpha = a;
     },
     destroy() {

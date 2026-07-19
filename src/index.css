@@ -2,42 +2,15 @@
 
 /*
  * Design tokens — the single place to rebrand or retheme the site.
- * DARK IS THE DEFAULT: the raw palette on :root is the dark theme, and the
- * light palette applies only on an explicit data-theme="light" (set by the
- * nav toggle, persisted by public/theme-init.js before first paint). The
- * OS color-scheme preference is deliberately NOT consulted — the design is
- * dark-first for every new visitor. Tailwind utilities consume the tokens
- * through the inline @theme mapping below, so every existing class
- * (bg-paper, text-ink, border-ink/8 …) adapts automatically.
+ * LIGHT IS THE DEFAULT: the raw palette on :root is the light theme, and
+ * the dark palette applies only on an explicit data-theme="dark" (set by
+ * the nav toggle, persisted by public/theme-init.js before first paint).
+ * The OS color-scheme preference is deliberately NOT consulted. Tailwind
+ * utilities consume the tokens through the inline @theme mapping below,
+ * so every existing class (bg-paper, text-ink, border-ink/8 …) adapts
+ * automatically.
  */
 :root {
-  color-scheme: dark;
-  --c-paper: #060a0f;
-  --c-cloud: #0b111a;
-  --c-card: #0e1622;
-  --c-ink: #eaf2f2;
-  --c-muted: #7c8a96;
-  --c-accent: #22d3ee;
-  --c-accent-deep: #67e8f9;
-  --c-accent-soft: rgba(34, 211, 238, 0.12);
-  --c-accent-strong: #22d3ee;
-  --c-accent-strong-hover: #4adef2;
-  --c-on-accent: #060a0f;
-
-  --grid-line: rgba(234, 242, 242, 0.05);
-  --hero-wash: rgba(34, 211, 238, 0.07);
-  --aurora-1: rgba(34, 211, 238, 0.14);
-  --aurora-2: rgba(124, 138, 150, 0.12);
-  --aurora-3: rgba(34, 211, 238, 0.07);
-  --spot-color: rgba(34, 211, 238, 0.08);
-  --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.55);
-  --btn-glow: rgba(34, 211, 238, 0.28);
-  --accent-glow: rgba(34, 211, 238, 0.28);
-  --grad-accent-from: #22d3ee;
-  --grad-accent-to: #a5f3fc;
-}
-
-:root[data-theme='light'] {
   color-scheme: light;
   --c-paper: #eef3f5;
   --c-cloud: #e2e9ec;
@@ -62,6 +35,33 @@
   --accent-glow: rgba(12, 101, 126, 0.3);
   --grad-accent-from: #0c657e;
   --grad-accent-to: #0891b2;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-paper: #060a0f;
+  --c-cloud: #0b111a;
+  --c-card: #0e1622;
+  --c-ink: #eaf2f2;
+  --c-muted: #7c8a96;
+  --c-accent: #22d3ee;
+  --c-accent-deep: #67e8f9;
+  --c-accent-soft: rgba(34, 211, 238, 0.12);
+  --c-accent-strong: #22d3ee;
+  --c-accent-strong-hover: #4adef2;
+  --c-on-accent: #060a0f;
+
+  --grid-line: rgba(234, 242, 242, 0.05);
+  --hero-wash: rgba(34, 211, 238, 0.07);
+  --aurora-1: rgba(34, 211, 238, 0.14);
+  --aurora-2: rgba(124, 138, 150, 0.12);
+  --aurora-3: rgba(34, 211, 238, 0.07);
+  --spot-color: rgba(34, 211, 238, 0.08);
+  --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --btn-glow: rgba(34, 211, 238, 0.28);
+  --accent-glow: rgba(34, 211, 238, 0.28);
+  --grad-accent-from: #22d3ee;
+  --grad-accent-to: #a5f3fc;
 }
 
 /* Utilities resolve to var() at the point of use, so opacity modifiers

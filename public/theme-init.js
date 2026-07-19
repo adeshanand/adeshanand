@@ -1,7 +1,7 @@
 /*
  * Runs blocking in <head> so an explicit theme choice applies before first
- * paint (no flash). Dark is the site default: with no stored choice this
- * is a no-op and the :root dark tokens paint. Also used by 404.html.
+ * paint (no flash). Light is the site default: with no stored choice this
+ * is a no-op and the :root light tokens paint. Also used by 404.html.
  * Ships as a file because the CSP forbids inline scripts.
  */
 (function () {

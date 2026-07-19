@@ -47,7 +47,7 @@ export default function Hero() {
     <section
       id="top"
       aria-label="Introduction"
-      className="relative flex min-h-[100svh] flex-col overflow-hidden pt-28 md:pt-32"
+      className="relative flex flex-col overflow-hidden pt-24 md:min-h-[min(100svh,64rem)] md:pt-28"
     >
       {/* Backdrop: grid + wash always; aurora glows hand off to the WebGL
           field (particles + cursor distortion + AA monogram) once it's live */}
@@ -76,18 +76,21 @@ export default function Hero() {
         ) : null}
       </div>
 
-      <Container className="flex flex-1 flex-col justify-center pb-16">
+      <Container className="flex flex-1 flex-col justify-center pb-10">
         <motion.p
           {...stagger(0)}
           className="inline-flex w-fit items-center gap-2 rounded-full border border-ink/10 bg-card/80 px-4 py-1.5 text-xs font-medium text-muted shadow-sm backdrop-blur-sm"
         >
-          <MapPin size={13} className="text-accent" aria-hidden />
-          {identity.location} · {identity.role}
+          <MapPin size={13} className="shrink-0 text-accent" aria-hidden />
+          {identity.location}
+          {/* The role repeats in the summary below — drop it from the chip on
+              phones so the badge stays a clean single line */}
+          <span className="max-sm:hidden"> · {identity.role}</span>
         </motion.p>
 
         <motion.h1
           {...stagger(1)}
-          className="mt-8 max-w-5xl font-display text-[clamp(2.75rem,6.5vw,5.5rem)] font-semibold leading-[1.04] tracking-tight text-balance text-ink"
+          className="mt-6 max-w-5xl font-display text-[clamp(2.5rem,min(6.5vw,8.5svh),5.5rem)] font-semibold leading-[1.04] tracking-tight text-balance text-ink"
         >
           {hero.headline[0]}
           <br />
@@ -96,7 +99,7 @@ export default function Hero() {
           </span>
         </motion.h1>
 
-        <motion.div {...stagger(2)} className="mt-7 flex flex-wrap items-center gap-2.5">
+        <motion.div {...stagger(2)} className="mt-5 flex flex-wrap items-center gap-2.5">
           {hero.chips.map((chip, i) => (
             <span
               key={chip}
@@ -112,11 +115,11 @@ export default function Hero() {
           ))}
         </motion.div>
 
-        <motion.p {...stagger(3)} className="mt-6 max-w-2xl text-base leading-relaxed text-muted md:text-lg">
+        <motion.p {...stagger(3)} className="mt-5 max-w-3xl text-base leading-relaxed text-muted md:text-lg">
           {hero.sub}
         </motion.p>
 
-        <motion.div {...stagger(4)} className="mt-9 flex flex-wrap items-center gap-3">
+        <motion.div {...stagger(4)} className="mt-7 flex flex-wrap items-center gap-3">
           {/* Below lg the nav's Hire Me pill lives inside the hamburger menu,
               so the hero leads with Hire Me (dials on phones) and the menu
               offers Email me; at lg+ the roles swap back. */}
@@ -153,7 +156,7 @@ export default function Hero() {
         </motion.div>
       </Container>
 
-      <motion.div {...stagger(5)} className="border-t border-ink/8 py-5">
+      <motion.div {...stagger(5)} className="border-t border-ink/8 py-4">
         <p className="sr-only">Platforms shipped for</p>
         <Marquee items={hero.brands} />
       </motion.div>

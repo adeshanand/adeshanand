@@ -5,8 +5,8 @@ import { useSyncExternalStore } from 'react';
  * ThemeToggles — desktop and mobile — and both must stay in sync).
  *
  * Single source of truth: the data-theme attribute on <html> (set before
- * first paint by public/theme-init.js). DARK IS THE DEFAULT — when the
- * attribute is absent the site is dark; the OS preference is deliberately
+ * first paint by public/theme-init.js). LIGHT IS THE DEFAULT — when the
+ * attribute is absent the site is light; the OS preference is deliberately
  * not consulted. React state derives via useSyncExternalStore, so no hook
  * instance can hold a stale copy.
  */
@@ -14,7 +14,7 @@ const listeners = new Set();
 const notify = () => listeners.forEach((l) => l());
 
 function currentTheme() {
-  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 }
 
 function syncThemeColorMeta(theme) {
@@ -32,7 +32,7 @@ function subscribe(listener) {
     if (e.newValue === 'light' || e.newValue === 'dark') {
       document.documentElement.dataset.theme = e.newValue;
     } else {
-      delete document.documentElement.dataset.theme; // back to the dark default
+      delete document.documentElement.dataset.theme; // back to the light default
     }
     syncThemeColorMeta(currentTheme());
     notify();

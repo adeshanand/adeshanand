@@ -48,6 +48,41 @@ export default function HeroField({ onReady, onLost }) {
       onReadyRef.current?.();
       syncColors(field, document.documentElement);
 
+      // The monogram positions itself relative to the measured headline —
+      // the DOM drives the scene, so text and letterform never collide
+      const measureText = () => {
+        const h1 = document.querySelector('#top h1');
+        if (!h1) return;
+        const hr = h1.getBoundingClientRect();
+        const cr = canvas.getBoundingClientRect();
+        if (!cr.width) return;
+        // The h1 block box stretches to its container edge; measure the
+        // rendered text's line boxes instead — the gap to the right of the
+        // actual glyphs is real estate the monogram stack can claim
+        const range = document.createRange();
+        range.selectNodeContents(h1);
+        const lineRects = Array.from(range.getClientRects());
+        const textRight = lineRects.length
+          ? Math.min(hr.right, Math.max(...lineRects.map((r) => r.right)))
+          : hr.right;
+        const badge = h1.previousElementSibling;
+        const br = badge ? badge.getBoundingClientRect() : null;
+        field.setTextBounds({
+          right: textRight - cr.left,
+          top: hr.top - cr.top,
+          cy: (hr.top + hr.bottom) / 2 - cr.top,
+          badgeRight: br ? br.right - cr.left : 0,
+        });
+      };
+      measureText();
+      field.resize();
+      // The hero entrance translates the headline for ~1.3s; one settled
+      // re-measure keeps the monogram centered on the text's final position
+      const settleTimer = setTimeout(() => {
+        measureText();
+        field.resize();
+      }, 1600);
+
       const hoverable = window.matchMedia('(hover: hover)').matches;
       const onMove = (e) => {
         const r = canvas.getBoundingClientRect();
@@ -85,7 +120,10 @@ export default function HeroField({ onReady, onLost }) {
         }
       });
       io.observe(canvas);
-      const ro = new ResizeObserver(() => field.resize());
+      const ro = new ResizeObserver(() => {
+        measureText();
+        field.resize();
+      });
       ro.observe(canvas);
 
       // Zoom / monitor moves change devicePixelRatio without a CSS resize
@@ -102,6 +140,7 @@ export default function HeroField({ onReady, onLost }) {
       watchDpr();
 
       cleanupInner = () => {
+        clearTimeout(settleTimer);
         io.disconnect();
         ro.disconnect();
         detachPointer();
@@ -129,12 +168,14 @@ export default function HeroField({ onReady, onLost }) {
 // the palette's contrast rules hold on canvas too
 function syncColors(field, root) {
   const cs = getComputedStyle(root);
-  // Dark is the site default: only an explicit light choice flips it
-  const dark = root.dataset.theme !== 'light';
+  // Light is the site default: only an explicit dark choice flips it
+  const dark = root.dataset.theme === 'dark';
+  // Monogram balls use fixed certification brand colors (AWS orange,
+  // SFCC blue) — only the particle field follows the theme
   field.setColors({
     accent: cs.getPropertyValue('--c-accent').trim(),
     muted: cs.getPropertyValue('--c-muted').trim(),
-    ball: cs.getPropertyValue('--c-accent-strong').trim(),
+    paper: cs.getPropertyValue('--c-paper').trim(),
     alpha: dark ? 1 : 0.85,
   });
 }

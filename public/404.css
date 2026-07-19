@@ -1,5 +1,5 @@
-/* Dark is the site default; 404.html loads theme-init.js, which applies
- * data-theme="light" only when the visitor explicitly chose light. */
+/* Light is the site default; 404.html loads theme-init.js, which applies
+ * data-theme="dark" only when the visitor explicitly chose dark. */
 * {
   margin: 0;
   box-sizing: border-box;
@@ -8,8 +8,8 @@ body {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: #060a0f;
-  color: #eaf2f2;
+  background: #eef3f5;
+  color: #071018;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   text-align: center;
   padding: 2rem;
@@ -19,7 +19,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #22d3ee;
+  color: #0c657e;
 }
 h1 {
   margin-top: 0.75rem;
@@ -29,7 +29,7 @@ h1 {
 }
 .lede {
   margin-top: 0.875rem;
-  color: #7c8a96;
+  color: #55636e;
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -38,38 +38,38 @@ a {
   margin-top: 2rem;
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
-  background: #22d3ee;
-  color: #060a0f;
+  background: #071018;
+  color: #22d3ee;
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
 }
 a:hover {
-  background: #4adef2;
+  background: #16222e;
 }
 a:focus-visible {
-  outline: 2px solid #22d3ee;
+  outline: 2px solid #0c657e;
   outline-offset: 3px;
 }
 
-/* Explicit light choice */
-:root[data-theme='light'] body {
-  background: #eef3f5;
-  color: #071018;
+/* Explicit dark choice */
+:root[data-theme='dark'] body {
+  background: #060a0f;
+  color: #eaf2f2;
 }
-:root[data-theme='light'] .code {
-  color: #0c657e;
-}
-:root[data-theme='light'] .lede {
-  color: #55636e;
-}
-:root[data-theme='light'] a {
-  background: #071018;
+:root[data-theme='dark'] .code {
   color: #22d3ee;
 }
-:root[data-theme='light'] a:hover {
-  background: #16222e;
+:root[data-theme='dark'] .lede {
+  color: #7c8a96;
 }
-:root[data-theme='light'] a:focus-visible {
-  outline-color: #0c657e;
+:root[data-theme='dark'] a {
+  background: #22d3ee;
+  color: #060a0f;
+}
+:root[data-theme='dark'] a:hover {
+  background: #4adef2;
+}
+:root[data-theme='dark'] a:focus-visible {
+  outline-color: #22d3ee;
 }
