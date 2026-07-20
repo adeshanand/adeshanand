@@ -93,7 +93,15 @@ export default function Experience() {
             id="experience-heading"
             index="02"
             eyebrow="Work"
-            title="Eight years, five teams, one throughline: platforms that scale."
+            size="text-[clamp(1.625rem,8.2vw,2.25rem)] md:text-6xl"
+            title={
+              <>
+                Eight years, <br className="md:hidden" />
+                five teams, <br className="md:hidden" />
+                one throughline: <br className="md:hidden" />
+                platforms that scale.
+              </>
+            }
             lede="From AWS-backed service apps to composable storefronts for global brands — each role built on the last."
           />
         </Reveal>

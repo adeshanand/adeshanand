@@ -97,7 +97,7 @@ export default function Contact() {
           <p className="text-sm text-muted">
             © {new Date().getFullYear()} {identity.name} · {identity.location}
           </p>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">
+          <p className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.14em] text-muted md:text-xs md:tracking-[0.18em]">
             Composable commerce · engineered to scale
           </p>
         </Container>
