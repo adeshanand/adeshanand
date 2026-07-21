@@ -23,6 +23,10 @@
   --c-accent-strong: #071018;
   --c-accent-strong-hover: #16222e;
   --c-on-accent: #22d3ee;
+  /* Brand-logo tile: stays white in BOTH themes — issuer marks are drawn
+   * for white backgrounds, so this token is deliberately not overridden
+   * in the dark block. */
+  --c-logo-tile: #ffffff;
 
   --grid-line: rgba(7, 16, 24, 0.05);
   --hero-wash: rgba(34, 211, 238, 0.12);
@@ -78,6 +82,7 @@
   --color-accent-strong: var(--c-accent-strong);
   --color-accent-strong-hover: var(--c-accent-strong-hover);
   --color-on-accent: var(--c-on-accent);
+  --color-logo-tile: var(--c-logo-tile);
 }
 
 @theme {

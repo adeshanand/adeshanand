@@ -236,8 +236,16 @@ export const awsCertifications = [
 
 export const certifications = [
   {
+    name: 'Sanity Certified Content Operator',
+    issuer: 'Sanity',
+    date: 'Jul 2026',
+    logo: '/logos/sanity.png',
+    verifyUrl: 'https://www.sanity.io/learn/profile/gt0XGk6qI',
+  },
+  {
     name: 'Oracle Certified Agentic AI Developer',
     issuer: 'Oracle',
+    logo: '/logos/oracle.png',
     verifyUrl:
       'https://catalog-education.oracle.com/ords/certview/sharebadge?id=96FE037C13FBED0427A24EB31A5AED45AD3FD1F5BA497D39DC3D1E70990904CB',
   },
@@ -246,12 +254,14 @@ export const certifications = [
     issuer: 'Salesforce',
     date: 'Sep 2025',
     credentialId: '6718429',
+    logo: '/logos/salesforce.svg',
     verifyUrl: 'https://trailhead.salesforce.com/en/credentials/verification/',
   },
   {
     name: 'Cyber Security Training Completion Certificate',
     issuer: 'Safe Security (earlier Lucideus)',
     credentialId: 'LCEH/50055',
+    logo: '/logos/safe-security.png',
     verifyUrl: 'https://drive.google.com/file/d/14hq5FXA4X_Lg19i5S699xlfO678BwG0f',
   },
 ];
@@ -260,6 +270,7 @@ export const recognitions = [
   {
     name: 'Freshworks Security Hall of Fame',
     body: 'Recognized by Freshworks for contributions to their responsible disclosure program, with a listing in their Hall of Fame.',
+    logo: '/logos/freshworks.png',
     url: 'https://www.freshworks.com/security/responsible-disclosure/',
   },
 ];
@@ -270,12 +281,14 @@ export const education = [
     school: "Tula's Institute, Dehradun",
     period: '2014 — 2016',
     score: '71.77%',
+    logo: '/logos/tulas.png',
   },
   {
     degree: 'Bachelor of Computer Applications',
     school: 'Lalit Narayana Mishra College of Business Management',
     period: '2011 — 2014',
     score: '72.46%',
+    logo: '/logos/lnmcbm.png',
   },
 ];
 

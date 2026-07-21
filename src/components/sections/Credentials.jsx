@@ -5,6 +5,32 @@ import Reveal from '../ui/Reveal.jsx';
 import SpotlightCard from '../ui/SpotlightCard.jsx';
 import { certifications, education, recognitions } from '../../data/profile.js';
 
+/* Issuer logos sit on a white tile so multi-color brand marks stay legible
+ * in both themes; entries without a logo keep the token-colored icon chip. */
+function CredentialMark({ logo, icon: Icon, iconClassName }) {
+  if (logo) {
+    return (
+      <span className="inline-flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-ink/8 bg-logo-tile p-1.5">
+        <img
+          src={logo}
+          alt=""
+          loading="lazy"
+          width="36"
+          height="36"
+          className="size-full rounded-md object-contain"
+        />
+      </span>
+    );
+  }
+  return (
+    <span
+      className={`inline-flex size-11 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
+    >
+      <Icon size={20} aria-hidden />
+    </span>
+  );
+}
+
 export default function Credentials() {
   return (
     <section id="credentials" aria-labelledby="credentials-heading" className="py-24 md:py-32">
@@ -14,8 +40,8 @@ export default function Credentials() {
             id="credentials-heading"
             index="04"
             eyebrow="Credentials"
-            title="Beyond AWS: commerce, AI, and security."
-            lede="Salesforce, Oracle, and security credentials — plus security research recognition — backed by formal computer-science training."
+            title="Beyond AWS: commerce, content, AI, and security."
+            lede="Sanity, Salesforce, Oracle, and security credentials — plus security research recognition — backed by formal computer-science training."
           />
         </Reveal>
 
@@ -28,9 +54,11 @@ export default function Credentials() {
               {certifications.map((cert, i) => (
                 <Reveal key={cert.name} delay={i * 0.08}>
                   <SpotlightCard className="flex gap-4 rounded-2xl border border-ink/8 bg-card p-6 transition-shadow duration-200 hover:[box-shadow:var(--shadow-card)]">
-                    <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
-                      <Award size={20} aria-hidden />
-                    </span>
+                    <CredentialMark
+                      logo={cert.logo}
+                      icon={Award}
+                      iconClassName="bg-accent-soft text-accent"
+                    />
                     <div>
                       <p className="font-display text-base font-semibold leading-snug text-ink">
                         {cert.name}
@@ -72,9 +100,11 @@ export default function Credentials() {
               {recognitions.map((rec, i) => (
                 <Reveal key={rec.name} delay={i * 0.08}>
                   <SpotlightCard className="flex gap-4 rounded-2xl border border-ink/8 bg-card p-6 transition-shadow duration-200 hover:[box-shadow:var(--shadow-card)]">
-                    <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
-                      <ShieldCheck size={20} aria-hidden />
-                    </span>
+                    <CredentialMark
+                      logo={rec.logo}
+                      icon={ShieldCheck}
+                      iconClassName="bg-accent-soft text-accent"
+                    />
                     <div>
                       <p className="font-display text-base font-semibold leading-snug text-ink">
                         {rec.name}
@@ -103,9 +133,11 @@ export default function Credentials() {
               {education.map((entry, i) => (
                 <Reveal key={entry.degree} delay={i * 0.08}>
                   <div className="flex gap-4 rounded-2xl border border-ink/8 bg-card p-6">
-                    <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-cloud text-muted">
-                      <GraduationCap size={20} aria-hidden />
-                    </span>
+                    <CredentialMark
+                      logo={entry.logo}
+                      icon={GraduationCap}
+                      iconClassName="bg-cloud text-muted"
+                    />
                     <div>
                       <p className="font-display text-base font-semibold leading-snug text-ink">
                         {entry.degree}
