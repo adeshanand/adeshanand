@@ -4,7 +4,7 @@
  * single greppable string in the bundle — a deterrent against harvesting
  * bots that scrape static output for mailto:/tel: patterns.
  */
-const EMAIL_PARTS = ['adeshanand', '.', 'official', '@', 'gmail', '.', 'com'];
+const EMAIL_PARTS = ['adeshanand', '.', 'developer', '@', 'gmail', '.', 'com'];
 const PHONE_PARTS = ['+91', '74831', '47340'];
 
 export function buildEmail() {
