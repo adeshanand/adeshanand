@@ -218,7 +218,7 @@ Named exports (all copy lives here; **contact details must never be added here**
 | `experience` | 5 roles `{company, meta?, role, period, location, projects:[{name, blurb, points?, stack[]}]}` | Experience |
 | `skills` | 4 groups `{title, icon: 'server'\|'layout'\|'sparkles'\|'wrench', items[]}` — icon key MUST be in Skills.jsx's ICONS map or render crashes | Skills |
 | `awsCertifications` | 2× `{name, short, level, badge, tagline, date?, credentialId?, verifyUrl}` | AwsSpotlight |
-| `certifications` | 4× `{name, issuer, date?, credentialId?, logo?, verifyUrl}` | Credentials |
+| `certifications` | 5× `{name, issuer, date?, expires?, credentialId?, logo?, verifyUrl}` | Credentials |
 | `recognitions` | 1× `{name, body, logo?, url}` | Credentials |
 | `education` | 2× `{degree, school, period, score, logo?}` | Credentials |
 | `testimonials` | 7 verbatim LinkedIn recommendations `{name, role, relation, date, url, initials, quote}` | Testimonials |
@@ -230,8 +230,12 @@ brand marks, verified against the issuers' own sites, ≤25KB each); `Credential
 Credentials.jsx renders them on a white tile (`bg-logo-tile`, backed by the theme-independent
 `--c-logo-tile` token — logos are drawn for white backgrounds, so it deliberately stays white in
 both themes) and falls back to the old token-colored lucide icon chip when `logo` is absent.
-Newest-first order: Sanity Certified Content Operator (Jul 2026, verify URL
-sanity.io/learn/profile/gt0XGk6qI — confirmed live against Sanity's Learn API) heads the list.
+Newest-first order: Claude Certified Architect — Foundations (Anthropic, Aug 2026, expires Aug 2027,
+verified via Credly badge 9cd9ec12-b4d9-4d58-9b2c-db78dbf30881; logo is anthropic.com's own
+180×180 apple-touch-icon) heads the list, followed by Sanity Certified Content Operator (Jul 2026,
+verify URL sanity.io/learn/profile/gt0XGk6qI — confirmed live against Sanity's Learn API).
+`expires` is optional and only set on time-limited certs; it renders as a "Valid through …" line
+above the credential ID.
 Testimonial avatars are **initials** on purpose: LinkedIn photo URLs are tokenized/expiring AND
 would be blocked by `img-src 'self'`.
 

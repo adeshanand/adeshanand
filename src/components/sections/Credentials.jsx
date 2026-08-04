@@ -41,7 +41,7 @@ export default function Credentials() {
             index="04"
             eyebrow="Credentials"
             title="Beyond AWS: commerce, content, AI, and security."
-            lede="Sanity, Salesforce, Oracle, and security credentials — plus security research recognition — backed by formal computer-science training."
+            lede="Anthropic, Sanity, Salesforce, Oracle, and security credentials — plus security research recognition — backed by formal computer-science training."
           />
         </Reveal>
 
@@ -67,6 +67,9 @@ export default function Credentials() {
                         {cert.issuer}
                         {cert.date ? ` · ${cert.date}` : null}
                       </p>
+                      {cert.expires ? (
+                        <p className="mt-1.5 text-xs text-muted">Valid through {cert.expires}</p>
+                      ) : null}
                       {cert.credentialId ? (
                         <p className="mt-1.5 text-xs text-muted">
                           Credential ID:{' '}

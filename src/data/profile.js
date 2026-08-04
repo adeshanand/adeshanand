@@ -209,7 +209,7 @@ export const skills = [
 
 /* AWS credentials get first-class treatment (hero chip + dedicated
  * spotlight section); the rest render in the supporting Credentials
- * section. `date` and `credentialId` are optional everywhere. */
+ * section. `date`, `expires`, and `credentialId` are optional everywhere. */
 export const awsCertifications = [
   {
     name: 'AWS Certified Generative AI Developer',
@@ -235,6 +235,14 @@ export const awsCertifications = [
 ];
 
 export const certifications = [
+  {
+    name: 'Claude Certified Architect — Foundations',
+    issuer: 'Anthropic',
+    date: 'Aug 2026',
+    expires: 'Aug 2027',
+    logo: '/logos/anthropic.png',
+    verifyUrl: 'https://www.credly.com/badges/9cd9ec12-b4d9-4d58-9b2c-db78dbf30881',
+  },
   {
     name: 'Sanity Certified Content Operator',
     issuer: 'Sanity',
